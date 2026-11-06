@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sam Inglês</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2f4bd8">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sam Inglês">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Voz primeiro: um botão grande de microfone no centro, transcrição e correções logo acima. */
+:root{
+  --paper:#f4f6fb; --card:#fff; --ink:#151a2d; --muted:#5a6279; --line:#dde2ee;
+  --accent:#2f4bd8; --accent-soft:#e7ebff; --pen:#cf3457; --pen-soft:#fdeaef; --ok:#178a5e; --ok-soft:#e3f5ec; --warn:#b7791f;
+  --display:"Bricolage Grotesque",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --paper:#0d111e; --card:#151a2c; --ink:#e7eaf4; --muted:#9aa2ba; --line:#283050;
+  --accent:#8197ff; --accent-soft:#1d2550; --pen:#ff7590; --pen-soft:#3a1b26; --ok:#45d39b; --ok-soft:#123327; --warn:#e9b04f; color-scheme:dark;}}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--paper);color:var(--ink);font:15px/1.55 var(--body)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:820px;margin:0 auto;height:100%;height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(16px,env(safe-area-inset-left))}
+.mic{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+header{display:flex;align-items:center;gap:10px;padding:14px 0;flex-wrap:wrap}
+header b{font-family:var(--display);font-size:20px;font-weight:800;margin-right:auto}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 12px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.sm{padding:4px 10px;font-size:13px}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.bar select{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--card);flex:1;min-width:200px}
+.msgs{flex:1;overflow-y:auto;padding:16px 0;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:85%;display:flex;flex-direction:column;gap:6px}
+.msg .bubble{padding:10px 14px;border-radius:14px;white-space:pre-wrap}
+.msg.t{align-self:flex-start}.msg.t .bubble{background:var(--accent-soft);border-top-left-radius:4px}
+.msg.s{align-self:flex-end;align-items:flex-end}.msg.s .bubble{background:var(--ink);color:var(--paper);border-top-right-radius:4px}
+.who{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.fix{background:var(--pen-soft);border-left:3px solid var(--pen);border-radius:8px;padding:7px 10px;font-size:13px;display:flex;flex-direction:column;gap:2px}
+.fix .w{color:var(--pen);text-decoration:line-through}.fix .r{color:var(--ok);font-weight:600}
+.fix.good{background:var(--ok-soft);border-left-color:var(--ok)}
+.fix.pron{background:transparent;border:1px dashed var(--warn);border-left:3px solid var(--warn)}
+.dock{border-top:1px solid var(--line);padding:14px 0 18px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.live{min-height:24px;color:var(--muted);font-style:italic;text-align:center;max-width:100%}
+.microw{display:flex;align-items:center;gap:16px}
+.mic{width:84px;height:84px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:34px;cursor:pointer;box-shadow:0 6px 20px color-mix(in srgb,var(--accent) 35%,transparent);transition:transform .15s}
+.mic.on{background:var(--pen);animation:pulse 1.2s infinite}
+.mic.wait{background:var(--muted);cursor:progress}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@media (prefers-reduced-motion: reduce){.mic.on{animation:none}}
+.state{font-family:var(--mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.opts{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:13px;color:var(--muted)}
+.opts label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.typed{display:flex;gap:8px;width:100%}
+.typed input{flex:1;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--card)}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);max-width:520px;width:calc(100% - 32px);padding:20px}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+dialog h2{font-family:var(--display);margin:0 0 6px}
+.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);margin-top:12px}
+.f input,.f select{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--paper);color:var(--ink);font-size:15px}
+.notice{border:1px solid var(--warn);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:13px}
+.small{font-size:13px}.muted{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <b>Sam · voz</b>
+    <span class="small muted" id="cost"></span>
+    <button class="btn sm" id="btnCfg">Configurações</button>
+  </header>
+  <div class="bar">
+    <select id="sc" aria-label="Cenário"></select>
+    <button class="btn primary sm" id="btnNew">Nova conversa</button>
+    <button class="btn sm" id="btnEval">Encerrar e avaliar</button>
+  </div>
+  <div class="msgs" id="msgs" aria-live="polite"></div>
+  <div class="dock">
+    <div class="live" id="live">Toque no microfone e fale em inglês.</div>
+    <div class="microw">
+      <button class="btn sm" id="btnPt" title="Fale uma frase em português e o Sam mostra como dizer em inglês">🇧🇷 Como digo…?</button>
+      <button class="mic" id="mic" aria-label="Falar">🎤</button>
+      <button class="btn sm" id="btnRepeat" title="Ouvir de novo a última fala do Sam">🔁 Repetir</button>
+    </div>
+    <div class="state" id="state">pronto</div>
+    <div class="opts">
+      <label><input type="checkbox" id="optHands" checked> Mãos livres (escuta sozinho depois que o Sam fala)</label>
+      <label><input type="checkbox" id="optFix" checked> Ler as correções em voz alta</label>
+    </div>
+    <form class="typed" id="typed"><input id="typedIn" placeholder="Ou digite aqui…" aria-label="Digitar mensagem"><button class="btn sm">Enviar</button></form>
+  </div>
+</div>
+
+<dialog id="cfg">
+  <form method="dialog" id="cfgForm">
+    <h2>Configurações</h2>
+    <label class="f">Inteligência do Sam
+      <select id="cProv">
+        <option value="gemini">Google Gemini · grátis (cota diária, sem cartão)</option>
+        <option value="claude">Claude (Anthropic) · usa créditos da API</option>
+      </select>
+    </label>
+    <div id="provGemini">
+      <p class="small muted" style="margin-top:8px">Pegue uma chave grátis em <b>aistudio.google.com</b> → "Get API key". No plano grátis, o Google pode usar as conversas para melhorar os modelos dele.</p>
+      <label class="f">Chave do Google AI Studio<input id="cGKey" type="password" placeholder="AIza..." autocomplete="off"></label>
+      <label class="f">Modelo <select id="cGModel"><option value="">Cole a chave para carregar os modelos</option></select></label>
+      <span class="small muted" id="gMsg"></span>
+    </div>
+    <div id="provClaude" hidden>
+      <p class="small muted" style="margin-top:8px">Crie a chave em console.anthropic.com. O uso é cobrado em créditos da API, separado da assinatura do Claude.</p>
+      <label class="f">Chave da API Anthropic<input id="cKey" type="password" placeholder="sk-ant-..." autocomplete="off"></label>
+      <label class="f">Modelo
+        <select id="cModel">
+          <option value="claude-haiku-5-5">Claude Haiku 5.5 · mais rápido e barato</option>
+          <option value="claude-sonnet-5-5">Claude Sonnet 5.5 · correções mais finas</option>
+        </select>
+      </label>
+    </div>
+    <p class="small muted" style="margin-top:8px">As chaves ficam salvas só neste navegador.</p>
+    <label class="f">Seu nome<input id="cName"></label>
+    <label class="f">Nível
+      <select id="cLevel"><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option></select>
+    </label>
+    <label class="f">Objetivo
+      <select id="cGoal"><option>Trabalho e carreira</option><option>Tecnologia e reuniões com times internacionais</option><option>Viagens</option><option>Entrevistas de emprego</option><option>Morar no exterior</option><option>Conversação geral</option></select>
+    </label>
+    <label class="f">Sotaque do Sam
+      <select id="cAccent"><option value="en-US">Americano</option><option value="en-GB">Britânico</option></select>
+    </label>
+    <label class="f">Voz do Sam (★ = neural, mais natural)
+      <select id="cVoice"></select>
+    </label>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:6px"><button class="btn sm" type="button" id="cTest">🔊 Testar</button><span class="small muted">Melhor voz grátis: Microsoft Edge → vozes "Natural" (Ava, Andrew, Emma).</span></div>
+    <label class="f">Velocidade da voz
+      <select id="cRate"><option value="0.8">Devagar</option><option value="0.95">Normal</option><option value="1.1">Rápida</option></select>
+    </label>
+    <label class="f">Semana do plano (1–26)<input id="cWeek" type="number" min="1" max="26"></label>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button class="btn primary" value="ok">Salvar</button></div>
+  </form>
+</dialog>
+
+<script>
+"use strict";
+/* Plano de 26 semanas: igual ao app principal */
+const W=[
+ [1,"Apresentações e rotina","present simple and to be",["Meet someone at an event|You meet the student at a casual networking event|a friendly attendee","Daily routine|You ask about the student's typical day|a new coworker"]],
+ [1,"Família, casa e cidade","there is/are, possessives",["Show your city|A tourist asks about the student's city|a tourist","Family|You chat about families|a neighbor"]],
+ [1,"Comida e compras","countable/uncountable, can/could requests",["Restaurant|The student orders dinner|a waiter","Buying clothes|The student buys a jacket|a shop assistant"]],
+ [1,"Gostos e tempo livre","like/love + -ing, frequency adverbs",["Weekend plans|You agree on weekend plans|a friend","Hobbies|You ask about hobbies|a language partner"]],
+ [2,"Viagem e aeroporto","present continuous, wh- questions",["Airport check-in|International flight check-in|an airline agent","Immigration|Immigration questions|an immigration officer"]],
+ [2,"Hotel e direções","imperatives, prepositions of place",["Hotel check-in|Booking problem at the hotel|a receptionist","Asking directions|The student is lost|a local"]],
+ [2,"Saúde e emergências","should, have to, must",["Doctor|The student describes symptoms|a doctor","Pharmacy|Headache medicine|a pharmacist"]],
+ [2,"Telefone e agendamentos","will and going to",["Booking by phone|Book an appointment|a receptionist on the phone","Reschedule|Move a meeting|a client on the phone"]],
+ [2,"Revisão: viagem completa","review",["Full trip|Airport, taxi, hotel, restaurant|people the traveller meets"]],
+ [3,"Fim de semana passado","past simple",["Last weekend|Monday chat about the weekend|a coworker","Best trip|Details of the best trip ever|a friend"]],
+ [3,"Experiências de vida","present perfect ever/never",["Have you ever|Podcast interview about experiences|a podcast host","Bucket list|Compare bucket lists|a friend"]],
+ [3,"Problemas e reclamações","past continuous, complaints",["Wrong order|Complain politely|customer service","What happened|Explain an incident|an insurance agent"]],
+ [3,"Trajetória e carreira","used to, time connectors",["Your career|How the career started and changed|a mentor","Then and now|Life before vs now|an old friend"]],
+ [4,"Dar opinião","giving opinions, agreeing/disagreeing",["Remote work debate|You take the opposite side|a colleague","Social media|Good or harmful?|a debate partner"]],
+ [4,"Comparar opções","comparatives and superlatives",["Choosing an apartment|Compare two apartments|a real estate agent","Which phone|Compare two phones|a tech store employee"]],
+ [4,"Hipóteses","1st and 2nd conditional",["Lottery|What would you do if...|a friend","Moving abroad|What would happen if you moved|a career coach"]],
+ [4,"Notícias e tecnologia","passive voice",["Tech news|Discuss a tech news story|a coworker","AI at work|AI in the student's field|a journalist"]],
+ [4,"Revisão: debate livre","review",["Free debate|Debate an everyday topic|a debate partner"]],
+ [5,"Reuniões","work phrasal verbs, polite requests",["Daily stand-up|Status update with blockers|a team lead","Polite disagreement|Disagree with a proposal|a manager"]],
+ [5,"Apresentar um projeto","signposting",["2-minute pitch|Present a project, answer questions|a stakeholder","Explain tech simply|Explain a technical concept|a non-technical client"]],
+ [5,"Negociação","softening modals",["Deadline negotiation|Ask for more time|a demanding client","Salary negotiation|Negotiate an offer|a recruiter"]],
+ [5,"Entrevista de emprego","present perfect continuous, STAR",["Behavioural interview|Realistic job interview|a hiring manager","Tell me about yourself|Intro and follow-ups|a recruiter"]],
+ [5,"Small talk e networking","question tags, follow-up questions",["Conference networking|Keep small talk going|an attendee","New teammate|Get to know a foreign teammate|a teammate"]],
+ [6,"Conversa rápida e natural","fillers, reported speech",["Fast native chat|Fast natural talk with idioms|a talkative native speaker","Retell a conversation|Retell what someone said|a friend"]],
+ [6,"Situações inesperadas","3rd conditional, paraphrasing",["Unexpected problem|Solve a surprise problem|a stressed coworker","Describe without the word|Describe things without the exact word|a game host"]],
+ [6,"Avaliação final","general review",["Final fluency interview|Speaking assessment: personal, stories, opinions, hypotheticals|an examiner"]]
+];
+const PLAN=W.map((w,i)=>({n:i+1,theme:w[1],grammar:w[2],sc:w[3].map(s=>{const[t,setup,role]=s.split("|");return{title:t,setup,role};})}));
+
+/* Estado */
+const KEY="sam-voz.v1";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let S={key:"",model:"claude-haiku-5-5",name:"",level:"A2",goal:"Trabalho e carreira",accent:"en-US",rate:0.95,week:1,sc:"1:0",hands:true,readFix:true,history:[],ui:[],tokens:{in:0,out:0}};
+try{Object.assign(S,JSON.parse(localStorage.getItem(KEY)||"{}"));}catch(e){}
+function save(){try{if(S.history.length>40){S.history=S.history.slice(-40);} if(S.ui.length>60)S.ui=S.ui.slice(-60); localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+/* Cenários */
+function renderSc(){
+  const o=[];PLAN.forEach(p=>p.sc.forEach((s,i)=>o.push(`<option value="${p.n}:${i}" ${S.sc===p.n+":"+i?"selected":""}>S${p.n} · ${esc(p.theme)} · ${esc(s.title)}</option>`)));
+  o.push(`<option value="free" ${S.sc==="free"?"selected":""}>Conversa livre</option>`);
+  $("sc").innerHTML=o.join("");
+}
+function scen(){ if(S.sc==="free") return {week:PLAN[S.week-1],title:"Free conversation",setup:"Talk about anything the student wants",role:"Sam, a friendly English coach"}; const[n,i]=S.sc.split(":").map(Number);return Object.assign({week:PLAN[n-1]},PLAN[n-1].sc[i]); }
+
+function system(){
+  const sc=scen(), w=sc.week;
+  return `You are "Sam", a warm, energetic English conversation coach for Brazilian Portuguese speakers aiming for fluency in 6 months. This is a SPOKEN conversation: the student speaks into a microphone and your reply is read aloud by text-to-speech.
+Student: ${S.name||"the student"}, level ${S.level}, goal: ${S.goal}. Plan week ${w.n}/26, theme "${w.theme}", grammar focus: ${w.grammar}.
+Role-play: "${sc.title}". Situation: ${sc.setup}. You play: ${sc.role}.
+Rules:
+- "reply": stay in character, 1-3 short spoken sentences adapted to ${S.level}, natural spoken English, contractions ok, no emojis, no markdown, no lists. Always end with a question so the student talks more than you. Use the week's grammar focus naturally.
+- The student's text is a speech-to-text transcript: IGNORE punctuation, capitalization and filler sounds. Correct real grammar and word-choice mistakes only, max 2, most important first; "why" in Brazilian Portuguese, one short sentence.
+- "pron": if a word in the transcript looks like a likely mispronunciation (an odd word that doesn't fit, a near-homophone of the intended word), give up to 1 item {"heard":"","meant":"","tip":"short tip in Portuguese"}; otherwise [].
+- "better": a more natural way a native would say the student's whole message, only if meaningfully different, else "".
+- If the student's message is marked [PT], they spoke Portuguese: put the English version in "better", leave corrections empty, and invite them to say it in English.
+- "say_fix": one short English sentence Sam says out loud before the reply when there is a correction, e.g. "Quick tip: we say 'I went', not 'I go'." Else "".
+Return ONLY JSON: {"say_fix":"","reply":"","corrections":[{"wrong":"","right":"","why":""}],"pron":[],"better":""}`;
+}
+
+/* IA: Gemini (grátis) ou Claude (créditos) */
+async function callClaude(messages, sys, maxTokens){
+  if((S.prov||"gemini")==="gemini") return callGemini(messages, sys, maxTokens);
+  if(!S.key){ openCfg(); throw new Error("Configure sua chave da API Anthropic ou troque para o Gemini grátis."); }
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{
+    "content-type":"application/json","x-api-key":S.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:S.model,max_tokens:maxTokens||500,system:sys,messages})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(j.error&&j.error.message?j.error.message:("Erro "+r.status));
+  if(j.usage){S.tokens.in+=j.usage.input_tokens||0;S.tokens.out+=j.usage.output_tokens||0;}
+  return (j.content||[]).map(c=>c.text||"").join("");
+}
+const GBASE="https://generativelanguage.googleapis.com/v1beta/";
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function callGemini(messages, sys, maxTokens){
+  if(!S.gkey){ openCfg(); throw new Error("Cole sua chave grátis do Google AI Studio nas configurações."); }
+  if(!S.gmodel||!S.gmodels){ await loadGeminiModels(S.gkey); if(!S.gmodel) throw new Error("Nenhum modelo Gemini disponível para essa chave."); }
+  const body={systemInstruction:{parts:[{text:sys}]},
+    contents:messages.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]})),
+    generationConfig:{responseMimeType:"application/json",maxOutputTokens:Math.max(1024,maxTokens||0),temperature:0.8}};
+  // Tenta o modelo escolhido; em sobrecarga (503/500) ou cota (429), repete e depois cai para os outros modelos grátis.
+  const order=[S.gmodel].concat((S.gmodels||[]).filter(m=>m!==S.gmodel)).slice(0,4);
+  let j=null, lastErr="", quota=false;
+  outer: for(const model of order){
+    for(let attempt=0; attempt<2; attempt++){
+      if(attempt>0||model!==order[0]) setState(model===order[0]?"tentando de novo":"trocando de modelo");
+      let r;
+      try{ r=await fetch(GBASE+model+":generateContent?key="+encodeURIComponent(S.gkey),{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)}); }
+      catch(e){ lastErr="Sem conexão com o Google."; await sleep(1200); continue; }
+      const jj=await r.json().catch(()=>({}));
+      if(r.ok){ j=jj; if(model!==S.gmodel){ S.gmodelActive=model; } break outer; }
+      lastErr=jj.error&&jj.error.message||("Erro "+r.status);
+      if(r.status===429){ quota=true; break; }            // cota deste modelo: vai para o próximo
+      if(r.status===503||r.status===500||r.status===504){ await sleep(attempt===0?1500:3000); continue; }
+      if(r.status===404||r.status===400&&/not found|not supported/i.test(lastErr)) break;
+      throw new Error(lastErr);
+    }
+  }
+  if(!j){ if(quota) throw new Error("A cota grátis do Gemini acabou por agora. Espere um minuto (ou até amanhã, se for a cota diária)."); throw new Error("Os modelos do Gemini estão sobrecarregados agora. Tente de novo em alguns minutos. ("+lastErr+")"); }
+  if(j.usageMetadata){S.tokens.in+=j.usageMetadata.promptTokenCount||0;S.tokens.out+=j.usageMetadata.candidatesTokenCount||0;}
+  const parts=(j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[];
+  const txt=parts.filter(p=>!p.thought).map(p=>p.text||"").join("");
+  if(!txt) throw new Error("O Gemini não devolveu resposta. Tente de novo.");
+  return txt;
+}
+async function loadGeminiModels(key){
+  const sel=$("cGModel"), msg=$("gMsg");
+  if(!key){sel.innerHTML='<option value="">Cole a chave para carregar os modelos</option>';return;}
+  msg.textContent="Carregando modelos…";
+  try{
+    const r=await fetch(GBASE+"models?pageSize=200&key="+encodeURIComponent(key)); const j=await r.json();
+    if(!r.ok) throw new Error(j.error&&j.error.message||"Chave inválida");
+    const ms=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes("generateContent") && /gemini/i.test(m.name) && !/tts|image|live|embedding|audio|vision|robotics|computer/i.test(m.name));
+    const score=m=>{const n=m.name;let s=0;if(/flash/i.test(n))s+=50;if(/lite/i.test(n))s-=10;if(/pro/i.test(n))s-=30;if(/preview|exp/i.test(n))s-=5;const v=n.match(/gemini-(\d+(?:\.\d+)?)/);if(v)s+=parseFloat(v[1])*3;return s;};
+    ms.sort((a,b)=>score(b)-score(a));
+    if(!ms.length) throw new Error("Nenhum modelo de texto encontrado");
+    if(!S.gmodel||!ms.some(m=>m.name===S.gmodel)) S.gmodel=ms[0].name;
+    S.gmodels=ms.filter(m=>/flash/i.test(m.name)).map(m=>m.name).slice(0,6);
+    sel.innerHTML=ms.map(m=>`<option value="${esc(m.name)}" ${m.name===S.gmodel?"selected":""}>${esc(m.displayName||m.name)}${/flash/i.test(m.name)&&!/lite/i.test(m.name)?" · recomendado":""}</option>`).join("");
+    msg.textContent="Chave válida ✓ Use um modelo Flash: é rápido e entra na cota grátis.";
+    save();
+  }catch(e){ msg.textContent="Não consegui validar a chave: "+e.message; }
+}
+function parseJSON(t){const a=t.indexOf("{"),b=t.lastIndexOf("}");return JSON.parse(t.slice(a,b+1));}
+
+/* Voz: síntese */
+let lastSpoken="";
+function voiceScore(v){let s=0;const n=v.name;
+  if(/natural|neural/i.test(n)) s+=60; if(/online/i.test(n)) s+=40; if(/premium|enhanced|siri/i.test(n)) s+=45; if(/google/i.test(n)) s+=30;
+  if(v.lang.replace("_","-")===S.accent) s+=10; else if(/^en[-_]/i.test(v.lang)) s+=2;
+  if(/compact|espeak|novelty|whisper|bad news|bells|zarvox|trinoids|albert|jester|organ|bubbles|boing|cellos|superstar|wobble/i.test(n)) s-=100;
+  return s;}
+function enVoices(){return speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang)).sort((a,b)=>voiceScore(b)-voiceScore(a));}
+const voicesReady=new Promise(res=>{ if(speechSynthesis.getVoices().length) return res(); speechSynthesis.addEventListener("voiceschanged",()=>res(),{once:true}); setTimeout(res,2500); });
+function voice(){const vs=enVoices();return vs.find(v=>v.voiceURI===S.voice)||vs[0]||null;}
+function cleanForSpeech(t){return String(t||"").replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,"").replace(/[*_#`>|~]/g,"").replace(/\s+/g," ").trim();}
+function chunks(t){const parts=t.match(/[^.!?;]+[.!?;]*\s*/g)||[t];const out=[];let cur="";parts.forEach(p=>{if((cur+p).length>180&&cur){out.push(cur.trim());cur=p;}else cur+=p;});if(cur.trim())out.push(cur.trim());return out;}
+async function speak(text,then){
+  text=cleanForSpeech(text);
+  if(!text){then&&then();return;}
+  await voicesReady;
+  lastSpoken=text; speechSynthesis.cancel();
+  const v=voice(); const list=chunks(text);
+  setState("Sam falando");
+  list.forEach((c,i)=>{ const u=new SpeechSynthesisUtterance(c); if(v){u.voice=v;u.lang=v.lang;}else u.lang=S.accent; u.rate=Number(S.rate)||0.95;
+    if(i===list.length-1){ u.onend=()=>{setState("pronto");then&&then();}; u.onerror=()=>{setState("pronto");then&&then();}; }
+    speechSynthesis.speak(u); });
+}
+async function renderVoices(){
+  await voicesReady; const vs=enVoices(), cur=voice(), sel=$("cVoice");
+  if(!vs.length){sel.innerHTML="<option value=''>Nenhuma voz em inglês encontrada</option>";return;}
+  sel.innerHTML=vs.map(v=>`<option value="${esc(v.voiceURI)}" ${cur&&cur.voiceURI===v.voiceURI?"selected":""}>${voiceScore(v)>=30?"★ ":""}${esc(v.name)} · ${esc(v.lang)}</option>`).join("");
+}
+
+/* Voz: reconhecimento */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null, listening=false, busy=false;
+function setState(t){$("state").textContent=t;}
+function listen(lang){
+  if(!SR){$("live").innerHTML='<span class="notice">Seu navegador não tem reconhecimento de fala. Use Google Chrome ou Microsoft Edge.</span>';return;}
+  if(busy||listening) return;
+  speechSynthesis.cancel();
+  rec=new SR(); rec.lang=lang||S.accent; rec.interimResults=true; rec.continuous=false; rec.maxAlternatives=1;
+  let finalText="", conf=1;
+  rec.onresult=e=>{let interim="";for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal){finalText+=r[0].transcript;conf=Math.min(conf,r[0].confidence||1);}else interim+=r[0].transcript;}
+    $("live").textContent=(finalText+" "+interim).trim()||"Ouvindo…";};
+  rec.onerror=e=>{ if(e.error==="not-allowed"||e.error==="service-not-allowed") $("live").textContent="Permita o uso do microfone no navegador (ícone de cadeado na barra de endereço)."; else if(e.error==="no-speech") $("live").textContent="Não ouvi nada. Toque no microfone e tente de novo."; };
+  rec.onend=()=>{listening=false;$("mic").classList.remove("on");setState("pronto");
+    const t=finalText.trim(); if(t){ send(lang==="pt-BR"?"[PT] "+t:t, conf); } };
+  rec.start(); listening=true; $("mic").classList.add("on"); setState(lang==="pt-BR"?"ouvindo em português":"ouvindo"); $("live").textContent="Ouvindo…";
+}
+function stopListen(){ if(rec&&listening) rec.stop(); }
+
+/* Conversa */
+function render(){
+  $("msgs").innerHTML=S.ui.map(m=>{
+    if(m.r==="t") return `<div class="msg t"><span class="who">Sam</span><div class="bubble">${esc(m.text)}</div></div>`;
+    if(m.r==="err") return `<div class="notice">${esc(m.text)}</div>`;
+    let h=`<div class="msg s"><span class="who">Você${m.conf<0.6?" · áudio pouco claro":""}</span><div class="bubble">${esc(m.text.replace(/^\[PT\] /,"🇧🇷 "))}</div>`;
+    if(m.fix){
+      (m.fix.corrections||[]).forEach(c=>h+=`<div class="fix"><span><span class="w">${esc(c.wrong)}</span> → <span class="r">${esc(c.right)}</span></span><span class="muted">${esc(c.why)}</span></div>`);
+      (m.fix.pron||[]).forEach(p=>h+=`<div class="fix pron"><span>🗣 Ouvi <b>${esc(p.heard)}</b>, acho que você quis dizer <b>${esc(p.meant)}</b></span><span class="muted">${esc(p.tip)}</span></div>`);
+      if(m.fix.better) h+=`<div class="fix good"><span class="small muted">Mais natural:</span><span class="r">${esc(m.fix.better)}</span></div>`;
+      if(!(m.fix.corrections||[]).length&&!(m.fix.pron||[]).length&&!m.fix.better) h+=`<div class="fix good"><span class="r">✓ Perfeito!</span></div>`;
+    }
+    return h+`</div>`;
+  }).join("") || `<div class="msg t"><span class="who">Sam</span><div class="bubble">Hi${S.name?" "+esc(S.name):""}! Escolha um cenário e toque em "Nova conversa". Eu começo falando, depois é só tocar no microfone e responder em inglês.</div></div>`;
+  if(busy) $("msgs").insertAdjacentHTML("beforeend",'<div class="small muted"><i>Sam está pensando…</i></div>');
+  $("msgs").scrollTop=$("msgs").scrollHeight;
+  $("mic").classList.toggle("wait",busy);
+  $("cost").textContent=S.tokens.in?`≈ ${(S.tokens.in+S.tokens.out).toLocaleString("pt-BR")} tokens usados`:"";
+}
+async function turn(userText){
+  busy=true; render(); setState("Sam pensando");
+  try{
+    const msgs=S.history.slice(); msgs.push({role:"user",content:userText});
+    const raw=await callClaude(msgs,system(),500);
+    const j=parseJSON(raw);
+    S.history.push({role:"user",content:userText},{role:"assistant",content:raw});
+    busy=false; save();
+    return j;
+  }catch(e){busy=false; S.ui.push({r:"err",text:"Não consegui falar com o Sam: "+e.message}); save(); render(); return null;}
+}
+async function newChat(){
+  speechSynthesis.cancel(); stopListen();
+  S.history=[]; S.ui=[]; save(); render();
+  const j=await turn("(The conversation starts now. Open the scene with your first line. Return corrections [], pron [], better \"\", say_fix \"\".)");
+  if(!j) return;
+  S.history[0].content="(Start the scene.)";
+  S.ui.push({r:"t",text:j.reply}); save(); render();
+  speak(j.reply,()=>{ if(S.hands) listen(); });
+}
+async function send(text,conf){
+  if(busy) return;
+  if(!S.history.length){ S.ui.push({r:"err",text:"Toque em \"Nova conversa\" primeiro."}); render(); return; }
+  const m={r:"s",text,conf:conf==null?1:conf}; S.ui.push(m); render();
+  const j=await turn(text); if(!j) return;
+  m.fix={corrections:(j.corrections||[]).slice(0,2),pron:(j.pron||[]).slice(0,1),better:j.better||""};
+  S.ui.push({r:"t",text:j.reply}); save(); render();
+  const spoken=(S.readFix&&j.say_fix?j.say_fix+" ":"")+j.reply;
+  speak(spoken,()=>{ if(S.hands) listen(); });
+}
+async function evaluate(){
+  if(busy||S.history.length<4) return;
+  speechSynthesis.cancel(); stopListen();
+  const transcript=S.ui.filter(m=>m.r!=="err").map(m=>(m.r==="t"?"Sam: ":"Student: ")+m.text).join("\n");
+  busy=true; render();
+  try{
+    const raw=await callClaude([{role:"user",content:`Evaluate the Student's spoken English (speech-to-text transcript, ignore punctuation) in this role-play. Student level ${S.level}.\n\n${transcript}\n\nWrite in Brazilian Portuguese. Return ONLY JSON: {"fluency":1-10,"accuracy":1-10,"vocabulary":1-10,"level":"A1-C1","strengths":[],"focus":[],"next":""}`}],"You are a fair, encouraging English speaking examiner.",600);
+    const f=parseJSON(raw); busy=false;
+    const txt=`Avaliação: fluência ${f.fluency}/10 · precisão ${f.accuracy}/10 · vocabulário ${f.vocabulary}/10 · nível estimado ${f.level}\n\nPontos fortes: ${(f.strengths||[]).join("; ")}\nMelhorar: ${(f.focus||[]).join("; ")}\nPróximo passo: ${f.next}`;
+    S.ui.push({r:"t",text:txt}); S.history=[]; save(); render();
+    speak(`Great job today! Your fluency score is ${f.fluency} out of 10.`);
+  }catch(e){busy=false; S.ui.push({r:"err",text:e.message}); render();}
+}
+
+/* Configurações */
+function showProv(){ const g=$("cProv").value==="gemini"; $("provGemini").hidden=!g; $("provClaude").hidden=g; }
+function openCfg(){ renderVoices(); $("cProv").value=S.prov||"gemini"; showProv(); $("cGKey").value=S.gkey||""; if(S.gkey) loadGeminiModels(S.gkey); $("cKey").value=S.key;$("cModel").value=S.model;$("cName").value=S.name;$("cLevel").value=S.level;$("cGoal").value=S.goal;$("cAccent").value=S.accent;$("cRate").value=String(S.rate);$("cWeek").value=S.week; $("cfg").showModal(); }
+$("cProv").addEventListener("change",showProv);
+$("cGKey").addEventListener("change",()=>{ S.gkey=$("cGKey").value.trim(); S.gmodel=""; loadGeminiModels(S.gkey); });
+$("cGModel").addEventListener("change",()=>{ S.gmodel=$("cGModel").value; });
+$("cfgForm").addEventListener("submit",()=>{ S.prov=$("cProv").value; S.gkey=$("cGKey").value.trim(); if($("cGModel").value) S.gmodel=$("cGModel").value; S.key=$("cKey").value.trim();S.model=$("cModel").value;S.name=$("cName").value.trim();S.level=$("cLevel").value;S.goal=$("cGoal").value;S.accent=$("cAccent").value;S.voice=$("cVoice").value||S.voice;S.rate=Number($("cRate").value);S.week=Math.min(26,Math.max(1,Number($("cWeek").value)||1)); if(S.sc!=="free"&&!S.history.length) S.sc=S.week+":0"; save(); renderSc(); render(); });
+
+/* Eventos */
+$("mic").addEventListener("click",()=>{ if(listening) stopListen(); else listen(); });
+$("btnPt").addEventListener("click",()=>{ if(!listening) listen("pt-BR"); });
+$("btnRepeat").addEventListener("click",()=>speak(lastSpoken));
+$("btnNew").addEventListener("click",newChat);
+$("btnEval").addEventListener("click",evaluate);
+$("btnCfg").addEventListener("click",openCfg);
+$("sc").addEventListener("change",()=>{S.sc=$("sc").value;save();});
+$("optHands").checked=S.hands; $("optFix").checked=S.readFix;
+$("optHands").addEventListener("change",e=>{S.hands=e.target.checked;save();});
+$("optFix").addEventListener("change",e=>{S.readFix=e.target.checked;save();});
+$("typed").addEventListener("submit",e=>{e.preventDefault();const v=$("typedIn").value.trim();if(v){$("typedIn").value="";send(v,1);}});
+document.addEventListener("keydown",e=>{ if(e.code==="Space"&&e.target===document.body){e.preventDefault(); listening?stopListen():listen();} });
+$("cTest").addEventListener("click",()=>{ S.voice=$("cVoice").value||S.voice; S.rate=Number($("cRate").value); speak("Hi! I'm Sam, your English coach. How was your weekend?"); });
+$("cAccent").addEventListener("change",()=>{ S.accent=$("cAccent").value; S.voice=""; renderVoices(); });
+renderSc(); render();
+if("serviceWorker" in navigator && location.protocol==="https:"){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
+if(!(S.prov==="claude"?S.key:S.gkey)) setTimeout(openCfg,300);
+</script>
+</body>
+</html>
